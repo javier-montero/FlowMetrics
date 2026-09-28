@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta, timezone
 
+from faker import Faker
 from sqlalchemy import select
 
 from app.database import Base, SessionLocal, engine
@@ -27,6 +28,8 @@ def _ensure_record(session, model, lookup, values):
 def seed():
     Base.metadata.create_all(bind=engine)
     now = datetime.now(timezone.utc).replace(microsecond=0)
+    fake = Faker("en_US")
+    fake.seed_instance(42042)
     inserted_count = 0
 
     with SessionLocal.begin() as session:
@@ -70,7 +73,9 @@ def seed():
                     "tat_seconds": 18000,
                     "expected_tat_seconds": 14400,
                     "tat_variance_seconds": 3600,
-                    "sequencer": "NovaSeq X",
+                    "sequencer": fake.random_element(
+                        elements=("NovaSeq X", "NextSeq 2000", "NovaSeq 6000")
+                    ),
                     "current_step": None,
                     "progress_percent": 100,
                     "failed_task_count": 0,
@@ -87,7 +92,9 @@ def seed():
                     "tat_seconds": None,
                     "expected_tat_seconds": 18000,
                     "tat_variance_seconds": None,
-                    "sequencer": "NextSeq 2000",
+                    "sequencer": fake.random_element(
+                        elements=("NovaSeq X", "NextSeq 2000", "NovaSeq 6000")
+                    ),
                     "current_step": "ALIGN",
                     "progress_percent": 62.5,
                     "failed_task_count": 0,
@@ -145,7 +152,7 @@ def seed():
                     "requested_memory_mb": 4096,
                     "peak_memory_mb": 2210,
                     "exit_code": 0,
-                    "node_list": "compute-014",
+                    "node_list": fake.bothify(text="compute-###"),
                 },
             },
             {
@@ -175,7 +182,7 @@ def seed():
                     "requested_memory_mb": 16384,
                     "peak_memory_mb": 12540,
                     "exit_code": 0,
-                    "node_list": "compute-021",
+                    "node_list": fake.bothify(text="compute-###"),
                 },
             },
             {
@@ -205,14 +212,14 @@ def seed():
                     "requested_memory_mb": 4096,
                     "peak_memory_mb": 1980,
                     "exit_code": 0,
-                    "node_list": "compute-014",
+                    "node_list": fake.bothify(text="compute-###"),
                 },
             },
             {
                 "task_id": "512",
                 "run_id": "BG-RUN-0043",
                 "process": "ALIGN",
-                "sample": "SAMPLE-003",
+                "sample": "SAMPLE-003": formatting/linting, type checks, unit tests, dependency scanning,
                 "status": "running",
                 "submitted_at": now - timedelta(minutes=12),
                 "started_at": now - timedelta(minutes=11),
@@ -235,7 +242,7 @@ def seed():
                     "requested_memory_mb": 16384,
                     "peak_memory_mb": 8300,
                     "exit_code": None,
-                    "node_list": "compute-031",
+                    "node_list": fake.bothify(text="compute-###"),
                 },
             },
         ]
