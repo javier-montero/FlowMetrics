@@ -8,6 +8,8 @@ Start the stack with `docker compose up --build`, then run the seed command:
 docker compose exec backend python -m app.seed
 ```
 
-The command creates the `metrics` table and inserts example metrics only when
-they do not already exist. It is safe to run more than once. Edit
-`backend/app/seed.py` to customize the starter data. NOTE: this is just a placeholder.
+The command creates the database tables and inserts a small RunScope fixture:
+one completed run, one active run, their samples and process executions, and
+matching SLURM job records. Existing records are left unchanged, so the command
+is safe to run more than once. Edit `backend/app/seed.py` to customize the
+deterministic starter data.
