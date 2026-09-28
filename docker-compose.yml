@@ -15,5 +15,18 @@ services:
       timeout: 5s
       retries: 10
 
+  backend:
+    build: ./backend
+    command: gunicorn app.main:app --bind 0.0.0.0:8000 --workers 2 --worker-class uvicorn_worker.UvicornWorker --reload
+    environment:
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-flowmetrics}:${POSTGRES_PASSWORD:-flowmetrics}@db:5432/${POSTGRES_DB:-flowmetrics}
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+    depends_on:
+      db:
+        condition: service_healthy
+
 volumes:
   postgres_data:
