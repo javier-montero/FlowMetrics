@@ -1,9 +1,9 @@
-from datetime import datetime, timedelta, timezone
+import argparse
 
-from faker import Faker
-from sqlalchemy import select
+from sqlalchemy import insert, select
 
 from app.database import Base, SessionLocal, engine
+from app.dummy_data import PROCESS_DEFINITIONS, generate_dummy_data
 from app.models import (
     ProcessDefinition,
     ProcessExecution,
@@ -24,12 +24,41 @@ def _ensure_record(session, model, lookup, values):
     session.flush()
     return record, True
 
+def _existing_keys(session, column, values):
+    values = list(set(values))
+    existing = set()
+    for offset in range(0, len(values), 800):
+        chunk = values[offset : offset + 800]
+        existing.update(session.scalars(select(column).where(column.in_(chunk))))
+    return existing
 
-def seed():
+
+def _lookup_ids(session, key_column, id_column, values):
+    values = list(set(values))
+    ids = {}
+    for offset in range(0, len(values), 800):
+        chunk = values[offset : offset + 800]
+        ids.update(
+            session.execute(
+                select(key_column, id_column).where(key_column.in_(chunk))
+            ).all()
+        )
+    return ids
+
+
+def _insert_missing(session, model, key_column, key_name, rows):
+    if not rows:
+        return 0
+    existing = _existing_keys(session, key_column, [row[key_name] for row in rows])
+    missing = [row for row in rows if row[key_name] not in existing]
+    if missing:
+        session.execute(insert(model), missing)
+    return len(missing)
+
+
+def seed(run_count=32, seed_value=42042):
+    generated = generate_dummy_data(run_count=run_count, seed_value=seed_value)
     Base.metadata.create_all(bind=engine)
-    now = datetime.now(timezone.utc).replace(microsecond=0)
-    fake = Faker("en_US")
-    fake.seed_instance(42042)
     inserted_count = 0
 
     with SessionLocal.begin() as session:
@@ -41,241 +70,94 @@ def seed():
         )
         inserted_count += inserted
 
-        processes = {}
-        for name, expected_seconds, sort_order in [
-            ("FASTQC", 300, 1),
-            ("TRIM_READS", 900, 2),
-            ("ALIGN", 2400, 3),
-        ]:
-            processes[name], inserted = _ensure_record(
+        process_ids = {}
+        for process_data in generated["processes"]:
+            process, inserted = _ensure_record(
                 session,
                 ProcessDefinition,
-                {"workflow_id": workflow.id, "name": name},
+                {"workflow_id": workflow.id, "name": process_data["name"]},
                 {
-                    "expected_duration_seconds": expected_seconds,
-                    "sort_order": sort_order,
+                    "expected_duration_seconds": process_data[
+                        "expected_duration_seconds"
+                    ],
+                    "sort_order": process_data["sort_order"],
                 },
             )
+            process_ids[process_data["name"]] = process.id
             inserted_count += inserted
 
-        completed_start = now - timedelta(hours=8)
-        completed_end = completed_start + timedelta(hours=5)
-        active_start = now - timedelta(minutes=35)
-        runs = {}
-        for run_id, values in [
-            (
-                "BG-RUN-0042",
-                {
-                    "status": "completed",
-                    "sample_count": 2,
-                    "started_at": completed_start,
-                    "completed_at": completed_end,
-                    "tat_seconds": 18000,
-                    "expected_tat_seconds": 14400,
-                    "tat_variance_seconds": 3600,
-                    "sequencer": fake.random_element(
-                        elements=("NovaSeq X", "NextSeq 2000", "NovaSeq 6000")
-                    ),
-                    "current_step": None,
-                    "progress_percent": 100,
-                    "failed_task_count": 0,
-                    "retried_task_count": 1,
-                },
-            ),
-            (
-                "BG-RUN-0043",
-                {
-                    "status": "running",
-                    "sample_count": 1,
-                    "started_at": active_start,
-                    "completed_at": None,
-                    "tat_seconds": None,
-                    "expected_tat_seconds": 18000,
-                    "tat_variance_seconds": None,
-                    "sequencer": fake.random_element(
-                        elements=("NovaSeq X", "NextSeq 2000", "NovaSeq 6000")
-                    ),
-                    "current_step": "ALIGN",
-                    "progress_percent": 62.5,
-                    "failed_task_count": 0,
-                    "retried_task_count": 0,
-                },
-            ),
-        ]:
-            runs[run_id], inserted = _ensure_record(
-                session,
-                Run,
-                {"run_id": run_id},
-                {"workflow_id": workflow.id, **values},
-            )
-            inserted_count += inserted
-
-        samples = {}
-        for run_id, sample_id, status in [
-            ("BG-RUN-0042", "SAMPLE-001", "completed"),
-            ("BG-RUN-0042", "SAMPLE-002", "completed"),
-            ("BG-RUN-0043", "SAMPLE-003", "running"),
-        ]:
-            samples[sample_id], inserted = _ensure_record(
-                session,
-                Sample,
-                {"sample_id": sample_id},
-                {"run_id": runs[run_id].id, "status": status},
-            )
-            inserted_count += inserted
-
-        executions = [
-            {
-                "task_id": "438",
-                "run_id": "BG-RUN-0042",
-                "process": "FASTQC",
-                "sample": "SAMPLE-001",
-                "status": "completed",
-                "submitted_at": completed_start + timedelta(minutes=5),
-                "started_at": completed_start + timedelta(minutes=5, seconds=30),
-                "completed_at": completed_start + timedelta(minutes=7),
-                "queue_time_seconds": 30,
-                "execution_time_seconds": 90,
-                "cpu_count": 2,
-                "cpu_utilization_percent": 84.0,
-                "memory_requested_mb": 4096,
-                "peak_memory_mb": 2210,
-                "exit_code": 0,
-                "attempt": 1,
-                "slurm_job": {
-                    "job_id": "928471",
-                    "status": "completed",
-                    "submitted_at": completed_start + timedelta(minutes=5),
-                    "started_at": completed_start + timedelta(minutes=5, seconds=30),
-                    "completed_at": completed_start + timedelta(minutes=7),
-                    "requested_cpus": 2,
-                    "requested_memory_mb": 4096,
-                    "peak_memory_mb": 2210,
-                    "exit_code": 0,
-                    "node_list": fake.bothify(text="compute-###"),
-                },
-            },
-            {
-                "task_id": "439",
-                "run_id": "BG-RUN-0042",
-                "process": "ALIGN",
-                "sample": "SAMPLE-001",
-                "status": "completed",
-                "submitted_at": completed_start + timedelta(minutes=12),
-                "started_at": completed_start + timedelta(minutes=14),
-                "completed_at": completed_start + timedelta(minutes=44),
-                "queue_time_seconds": 120,
-                "execution_time_seconds": 1800,
-                "cpu_count": 8,
-                "cpu_utilization_percent": 78.5,
-                "memory_requested_mb": 16384,
-                "peak_memory_mb": 12540,
-                "exit_code": 0,
-                "attempt": 2,
-                "slurm_job": {
-                    "job_id": "928472",
-                    "status": "completed",
-                    "submitted_at": completed_start + timedelta(minutes=12),
-                    "started_at": completed_start + timedelta(minutes=14),
-                    "completed_at": completed_start + timedelta(minutes=44),
-                    "requested_cpus": 8,
-                    "requested_memory_mb": 16384,
-                    "peak_memory_mb": 12540,
-                    "exit_code": 0,
-                    "node_list": fake.bothify(text="compute-###"),
-                },
-            },
-            {
-                "task_id": "440",
-                "run_id": "BG-RUN-0042",
-                "process": "FASTQC",
-                "sample": "SAMPLE-002",
-                "status": "completed",
-                "submitted_at": completed_start + timedelta(minutes=8),
-                "started_at": completed_start + timedelta(minutes=8, seconds=45),
-                "completed_at": completed_start + timedelta(minutes=10),
-                "queue_time_seconds": 45,
-                "execution_time_seconds": 75,
-                "cpu_count": 2,
-                "cpu_utilization_percent": 81.0,
-                "memory_requested_mb": 4096,
-                "peak_memory_mb": 1980,
-                "exit_code": 0,
-                "attempt": 1,
-                "slurm_job": {
-                    "job_id": "928473",
-                    "status": "completed",
-                    "submitted_at": completed_start + timedelta(minutes=8),
-                    "started_at": completed_start + timedelta(minutes=8, seconds=45),
-                    "completed_at": completed_start + timedelta(minutes=10),
-                    "requested_cpus": 2,
-                    "requested_memory_mb": 4096,
-                    "peak_memory_mb": 1980,
-                    "exit_code": 0,
-                    "node_list": fake.bothify(text="compute-###"),
-                },
-            },
-            {
-                "task_id": "512",
-                "run_id": "BG-RUN-0043",
-                "process": "ALIGN",
-                "sample": "SAMPLE-003": formatting/linting, type checks, unit tests, dependency scanning,
-                "status": "running",
-                "submitted_at": now - timedelta(minutes=12),
-                "started_at": now - timedelta(minutes=11),
-                "completed_at": None,
-                "queue_time_seconds": 60,
-                "execution_time_seconds": None,
-                "cpu_count": 8,
-                "cpu_utilization_percent": 66.0,
-                "memory_requested_mb": 16384,
-                "peak_memory_mb": 8300,
-                "exit_code": None,
-                "attempt": 1,
-                "slurm_job": {
-                    "job_id": "928474",
-                    "status": "running",
-                    "submitted_at": now - timedelta(minutes=12),
-                    "started_at": now - timedelta(minutes=11),
-                    "completed_at": None,
-                    "requested_cpus": 8,
-                    "requested_memory_mb": 16384,
-                    "peak_memory_mb": 8300,
-                    "exit_code": None,
-                    "node_list": fake.bothify(text="compute-###"),
-                },
-            },
+        run_rows = [
+            {"workflow_id": workflow.id, **run_data}
+            for run_data in generated["runs"]
         ]
+        inserted_count += _insert_missing(session, Run, Run.run_id, "run_id", run_rows)
+        run_ids = _lookup_ids(
+            session, Run.run_id, Run.id, [row["run_id"] for row in run_rows]
+        )
 
-        for execution_data in executions:
-            execution_values = {
-                key: value
-                for key, value in execution_data.items()
-                if key not in {"task_id", "run_id", "process", "sample", "slurm_job"}
+        sample_rows = [
+            {
+                "run_id": run_ids[sample_data["run_id"]],
+                "sample_id": sample_data["sample_id"],
+                "status": sample_data["status"],
             }
-            execution, inserted = _ensure_record(
-                session,
-                ProcessExecution,
-                {"task_id": execution_data["task_id"]},
+            for sample_data in generated["samples"]
+        ]
+        inserted_count += _insert_missing(
+            session, Sample, Sample.sample_id, "sample_id", sample_rows
+        )
+
+        execution_rows = []
+        for execution_data in generated["executions"]:
+            execution_rows.append(
                 {
-                    **execution_values,
-                    "run_id": runs[execution_data["run_id"]].id,
-                    "process_id": processes[execution_data["process"]].id,
-                    "sample_id": execution_data["sample"],
-                },
+                    key: value
+                    for key, value in {
+                        **execution_data,
+                        "run_id": run_ids[execution_data["run_id"]],
+                        "process_id": process_ids[execution_data["process_name"]],
+                    }.items()
+                    if key not in {"process_name", "slurm_job"}
+                }
             )
-            inserted_count += inserted
-            _, inserted = _ensure_record(
-                session,
-                SlurmJob,
-                {"job_id": execution_data["slurm_job"]["job_id"]},
-                {**execution_data["slurm_job"], "process_execution_id": execution.id},
-            )
-            inserted_count += inserted
+        inserted_count += _insert_missing(
+            session,
+            ProcessExecution,
+            ProcessExecution.task_id,
+            "task_id",
+            execution_rows,
+        )
+        execution_ids = _lookup_ids(
+            session,
+            ProcessExecution.task_id,
+            ProcessExecution.id,
+            [row["task_id"] for row in execution_rows],
+        )
+
+        slurm_rows = [
+            {
+                **execution_data["slurm_job"],
+                "process_execution_id": execution_ids[execution_data["task_id"]],
+            }
+            for execution_data in generated["executions"]
+            if execution_data["slurm_job"] is not None
+        ]
+        inserted_count += _insert_missing(
+            session, SlurmJob, SlurmJob.job_id, "job_id", slurm_rows
+        )
 
     print(f"Inserted {inserted_count} RunScope record(s).")
     return inserted_count
 
 
+def main():
+    parser = argparse.ArgumentParser(description="Seed FlowMetrics with dummy run data.")
+    parser.add_argument("--runs", type=int, default=32, help="number of runs to seed")
+    parser.add_argument("--seed", type=int, default=42042, help="random seed")
+    arguments = parser.parse_args()
+    seed(run_count=arguments.runs, seed_value=arguments.seed)
+
+
 if __name__ == "__main__":
+    main()
     seed()

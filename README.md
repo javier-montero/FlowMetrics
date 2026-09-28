@@ -8,8 +8,12 @@ Start the stack with `docker compose up --build`, then run the seed command:
 docker compose exec backend python -m app.seed
 ```
 
-The command creates the database tables and inserts a small RunScope fixture:
-one completed run, one active run, their samples and process executions, and
-matching SLURM job records. Existing records are left unchanged, so the command
-is safe to run more than once. Edit `backend/app/seed.py` to customize the
-deterministic starter data.
+By default, the seeder creates 32 synthetic runs balanced across 24-, 48-,
+96-, and 384-well plates, with queued, running, completed, failed, and cancelled
+runs distributed across workflow steps. Faker and a fixed random seed make
+generated random details reproducible; timestamps are relative to seeding time.
+Change the run count or seed with
+`docker compose exec backend python -m app.seed --runs 40 --seed 1234`.
+Existing generated records are left unchanged, so rerunning with the same seed
+is safe; increasing the count adds records. Well positions are included in
+sample IDs, such as `SIM-42042-0001-A01`.
