@@ -219,3 +219,6 @@ __marimo__/
 
 # Github
 .github
+
+# NPM
+frontend/node_modules/*

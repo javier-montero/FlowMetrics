@@ -1,5 +1,12 @@
 # FlowMetrics
 
+## Frontend development
+
+Open the project in VS Code and run **Dev Containers: Reopen in Container** from
+the Command Palette. VS Code attaches to the frontend container, where the
+workspace TypeScript compiler and React dependencies are installed. The database
+and backend services start alongside it.
+
 ## Backend layout
 
 ```text
