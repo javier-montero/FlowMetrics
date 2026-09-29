@@ -9,6 +9,7 @@ backend/
 	├── db/
 	├── models/
 	├── schemas/
+	├── services/
 	└── seed/
 ```
 
