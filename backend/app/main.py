@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.routes.health import router as health_router
 from app.routes.runs import router as runs_router
 from app.routes.samples import router as samples_router
+from app.routes.workflow import router as workflow_router
 
 app = FastAPI(title="FlowMetrics API")
 app.add_middleware(
@@ -17,3 +18,4 @@ app.add_middleware(
 app.include_router(health_router)
 app.include_router(runs_router)
 app.include_router(samples_router)
+app.include_router(workflow_router)

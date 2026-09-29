@@ -10,6 +10,7 @@ from app.schemas.sample import (
     SampleRead,
     SampleSummaryRead,
 )
+from app.schemas.run_workflow import RunWorkflowRead, WorkflowStepRead
 from app.schemas.workflow import (
     ProcessDefinitionRead,
     ReadSchema,
@@ -23,6 +24,7 @@ __all__ = [
     "ReadSchema",
     "RunRead",
     "RunPageRead",
+    "RunWorkflowRead",
     "RunStatus",
     "SamplePageRead",
     "SampleRead",
@@ -30,4 +32,5 @@ __all__ = [
     "SlurmJobRead",
     "SlurmJobStatus",
     "WorkflowDefinitionRead",
+    "WorkflowStepRead",
 ]
