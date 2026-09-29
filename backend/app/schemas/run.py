@@ -3,7 +3,6 @@ from enum import StrEnum
 
 from pydantic import Field
 
-from app.schemas.execution import ExecutionStatus, ProcessExecutionRead
 from app.schemas.workflow import ReadSchema, WorkflowDefinitionRead
 
 
@@ -39,14 +38,3 @@ class RunPageRead(ReadSchema):
     limit: int = Field(ge=1)
     offset: int = Field(ge=0)
 
-
-class SampleSummaryRead(ReadSchema):
-    id: int
-    sample_id: str
-    status: ExecutionStatus
-
-
-class SampleRead(SampleSummaryRead):
-    process_executions: list[ProcessExecutionRead] = Field(
-        default_factory=list, validation_alias="executions"
-    )
