@@ -222,3 +222,6 @@ __marimo__/
 
 # NPM
 frontend/node_modules/*
+
+# Vite
+frontend/.vite/*
