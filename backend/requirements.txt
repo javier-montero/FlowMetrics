@@ -1,0 +1,6 @@
+fastapi>=0.115,<1.0
+gunicorn>=23,<24
+uvicorn-worker>=0.3,<1.0
+SQLAlchemy>=2.0,<3.0
+psycopg[binary]>=3.2,<4.0
+Faker>=30,<40

@@ -1,0 +1,27 @@
+{
+  "name": "flowmetrics-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc --noEmit && vite build"
+  },
+  "dependencies": {
+    "bootstrap": "^5.3.8",
+    "bootstrap-icons": "^1.13.1",
+    "primeicons": "^7.0.0",
+    "primereact": "^10.9.7",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "react-router-dom": "^7.18.4"
+  },
+  "devDependencies": {
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^5.0.2",
+    "typescript": "^7.0.2",
+    "vite": "^7.1.7"
+  }
+}

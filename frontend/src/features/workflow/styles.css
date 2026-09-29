@@ -1,0 +1,172 @@
+.workflow-breadcrumb {
+  align-items: center;
+  color: #71877e;
+  display: flex;
+  font-size: 0.8rem;
+  gap: 0.55rem;
+}
+
+.workflow-back-link {
+  align-items: center;
+  color: #356b56;
+  display: inline-flex;
+  gap: 0.4rem;
+  text-decoration: none;
+}
+
+.workflow-back-link:hover,
+.workflow-back-link:focus-visible {
+  color: #173a30;
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+}
+
+.workflow-run-summary {
+  align-items: center;
+  color: #607970;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  font-size: 0.82rem;
+}
+
+.workflow-run-summary strong {
+  color: #244a3e;
+  font-variant-numeric: tabular-nums;
+}
+
+.workflow-run-progress {
+  align-items: center;
+  display: flex;
+  gap: 0.55rem;
+  min-width: 110px;
+}
+
+.workflow-run-progress .p-progressbar {
+  background: #e4ece8;
+  border-radius: 2px;
+  flex: 1;
+  height: 6px;
+}
+
+.workflow-run-progress .p-progressbar .p-progressbar-value {
+  background: #378267;
+}
+
+.workflow-run-progress > span {
+  color: #5d766c;
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+  width: 2rem;
+}
+
+.workflow-process-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.workflow-process-cell > span {
+  color: #244a3e;
+  font-weight: 650;
+}
+
+.workflow-process-cell small {
+  color: #82968e;
+  font-size: 0.74rem;
+}
+
+.workflow-table .p-row-expansion > td {
+  background: #f7faf8;
+  padding: 0 !important;
+}
+
+.workflow-executions {
+  border-left: 3px solid #77a48e;
+  padding: 1rem 1.25rem 1.1rem;
+}
+
+.workflow-executions-heading {
+  color: #31594a;
+  font-size: 0.82rem;
+  font-weight: 700;
+  margin-bottom: 0.65rem;
+}
+
+.workflow-executions-table .p-datatable-thead > tr > th {
+  font-size: 0.66rem;
+  padding: 0.6rem 0.7rem;
+}
+
+.workflow-executions-table .p-datatable-tbody > tr > td {
+  font-size: 0.78rem;
+  padding: 0.55rem 0.7rem;
+}
+
+.workflow-executions-table .p-paginator {
+  border-top: 1px solid #e1ebe5;
+  justify-content: flex-end;
+  padding: 0.35rem 0.5rem;
+}
+
+.workflow-task-id {
+  color: #31594a;
+  font-variant-numeric: tabular-nums;
+}
+
+.workflow-sample-link {
+  color: #356b56;
+  text-decoration-color: #9ebeb0;
+  text-underline-offset: 0.15em;
+}
+
+.workflow-sample-link:hover,
+.workflow-sample-link:focus-visible {
+  color: #173a30;
+}
+
+.workflow-slurm-job {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.workflow-slurm-job + .workflow-slurm-job {
+  border-top: 1px solid #e1ebe5;
+  margin-top: 0.3rem;
+  padding-top: 0.3rem;
+}
+
+.workflow-slurm-job small {
+  color: #81958c;
+}
+
+.workflow-no-executions {
+  color: #687f75;
+  font-size: 0.85rem;
+  padding: 1rem 1.25rem;
+}
+
+.workflow-step-link {
+  color: #356b56;
+  text-decoration-color: #9ebeb0;
+  text-underline-offset: 0.16em;
+}
+
+.workflow-step-link:hover,
+.workflow-step-link:focus-visible {
+  color: #173a30;
+  text-decoration-color: currentColor;
+}
+
+@media (max-width: 767.98px) {
+  .workflow-run-summary {
+    gap: 0.65rem 1rem;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .workflow-executions {
+    padding: 0.75rem;
+  }
+}
