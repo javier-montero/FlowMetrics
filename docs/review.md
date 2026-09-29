@@ -19,4 +19,4 @@
 * Decompose tables into schemas as appropriate
 
 ## Misc
-* The project as a whole should be decomposed both structurally (BE/FE) and conceptually (give some thought to the directory structure/linting/formatting)
+* The project as a whole should be decomposed both structurally (BE/FE) and conceptually (give some thought to linting/formatting)

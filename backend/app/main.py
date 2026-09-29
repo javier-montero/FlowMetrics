@@ -1,8 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy import text
 
-from app.database import engine
+from app.routes.health import router as health_router
 
 app = FastAPI(title="FlowMetrics API")
 app.add_middleware(
@@ -13,8 +12,4 @@ app.add_middleware(
 )
 
 
-@app.get("/health")
-def health():
-    with engine.connect() as connection:
-        connection.execute(text("SELECT 1"))
-    return {"status": "ok", "database": "connected"}
+app.include_router(health_router)

@@ -1,5 +1,17 @@
 # FlowMetrics
 
+## Backend layout
+
+```text
+backend/
+└── app/
+	├── routes/
+	├── db/
+	├── models/
+	├── schemas/
+	└── seed/
+```
+
 ## Database schema
 
 ```mermaid

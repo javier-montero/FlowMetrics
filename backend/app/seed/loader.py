@@ -2,8 +2,9 @@ import argparse
 
 from sqlalchemy import insert, select
 
-from app.database import Base, SessionLocal, engine
-from app.dummy_data import PROCESS_DEFINITIONS, generate_dummy_data
+from app.db.base import Base
+from app.db.session import SessionLocal, engine
+from app.seed.data import PROCESS_DEFINITIONS, generate_dummy_data
 from app.models import (
     ProcessDefinition,
     ProcessExecution,
@@ -160,4 +161,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-    seed()

@@ -1,0 +1,1 @@
+"""Synthetic data generation and database seeding."""
