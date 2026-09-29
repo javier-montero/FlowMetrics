@@ -1,7 +1,20 @@
 import { apiGet } from '../../lib/api';
-import type { Run, RunQuery } from './types';
+import type { RunPage, RunQuery } from './types';
 
-export function getRuns({ limit = 100, offset = 0 }: RunQuery = {}): Promise<Run[]> {
-  const params = new URLSearchParams({ limit: String(limit), offset: String(offset) });
-  return apiGet<Run[]>(`/runs?${params}`);
+export function getRuns({
+  limit = 25,
+  offset = 0,
+  search,
+  sort_by = 'started_at',
+  sort_order = 'desc',
+  signal,
+}: RunQuery = {}): Promise<RunPage> {
+  const params = new URLSearchParams({
+    limit: String(limit),
+    offset: String(offset),
+    sort_by,
+    sort_order,
+  });
+  if (search) params.set('search', search);
+  return apiGet<RunPage>(`/runs?${params}`, { signal });
 }
