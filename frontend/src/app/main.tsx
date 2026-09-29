@@ -9,6 +9,7 @@ import 'primeicons/primeicons.css';
 import '../styles/global.css';
 import '../features/runs/styles.css';
 import '../features/samples/styles.css';
+import '../features/workflow/styles.css';
 import App from './App';
 
 const rootElement = document.getElementById('root');

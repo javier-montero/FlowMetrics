@@ -208,7 +208,15 @@ export default function RunsView() {
             )}
           />
           <Column field="started_at" header="Started" sortable body={(run: Run) => formatDate(run.started_at)} />
-          <Column field="current_step" header="Current step" body={(run: Run) => run.current_step ?? '—'} />
+          <Column
+            field="current_step"
+            header="Current step"
+            body={(run: Run) => (
+              <Link className="workflow-step-link" to={`/runs/${encodeURIComponent(run.run_id)}/workflow`}>
+                {run.current_step ?? 'View workflow'}
+              </Link>
+            )}
+          />
           <Column field="progress_percent" header="Progress" sortable body={progressBody} />
           <Column field="tat_seconds" header="Turnaround" body={(run: Run) => formatDuration(run.tat_seconds)} />
         </DataTable>
