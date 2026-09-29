@@ -12,7 +12,7 @@ router = APIRouter()
 
 @router.get("/runs", response_model=RunPageRead)
 def get_runs(
-    limit: int = Query(default=25, ge=1, le=100),
+    limit: int = Query(default=25, ge=1, le=500),
     offset: int = Query(default=0, ge=0),
     search: str | None = Query(default=None, max_length=100),
     sort_by: Literal[

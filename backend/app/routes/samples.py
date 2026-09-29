@@ -12,7 +12,7 @@ router = APIRouter()
 @router.get("/runs/{run_id}/samples", response_model=SamplePageRead)
 def get_samples(
     run_id: str,
-    limit: int = Query(default=25, ge=1, le=100),
+    limit: int = Query(default=25, ge=1, le=500),
     offset: int = Query(default=0, ge=0),
     search: str | None = Query(default=None, max_length=100),
     status: ExecutionStatus | None = Query(default=None),

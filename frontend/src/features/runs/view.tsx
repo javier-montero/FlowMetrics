@@ -7,7 +7,7 @@ import { Tag } from 'primereact/tag';
 import { getRuns } from './services';
 import type { Run, RunSortField, RunStatus } from './types';
 
-const pageSizes = [10, 25, 50];
+const pageSizes = [25, 50, 100, 500];
 
 const statusSeverity: Record<RunStatus, 'success' | 'info' | 'warning' | 'danger' | 'secondary'> = {
   queued: 'secondary',
