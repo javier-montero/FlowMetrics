@@ -3,6 +3,7 @@ import { Column } from 'primereact/column';
 import { DataTable } from 'primereact/datatable';
 import { ProgressBar } from 'primereact/progressbar';
 import { Tag } from 'primereact/tag';
+import { Link } from 'react-router-dom';
 
 import { getRuns } from './services';
 import type { Run, RunSortField, RunStatus } from './types';
@@ -192,7 +193,20 @@ export default function RunsView() {
             )}
           />
           <Column field="status" header="Status" sortable body={statusBody} />
-          <Column field="sample_count" header="Samples" sortable body={(run: Run) => run.sample_count.toLocaleString()} />
+          <Column
+            field="sample_count"
+            header="Samples"
+            sortable
+            body={(run: Run) => (
+              <Link
+                className="sample-count-link"
+                to={`/runs/${encodeURIComponent(run.run_id)}/samples`}
+                aria-label={`View ${run.sample_count} samples for run ${run.run_id}`}
+              >
+                {run.sample_count.toLocaleString()}
+              </Link>
+            )}
+          />
           <Column field="started_at" header="Started" sortable body={(run: Run) => formatDate(run.started_at)} />
           <Column field="current_step" header="Current step" body={(run: Run) => run.current_step ?? '—'} />
           <Column field="progress_percent" header="Progress" sortable body={progressBody} />
