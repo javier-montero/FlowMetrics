@@ -4,7 +4,7 @@ from app.schemas.execution import (
     SlurmJobRead,
     SlurmJobStatus,
 )
-from app.schemas.run import RunRead, RunStatus, SampleRead, SampleSummaryRead
+from app.schemas.run import RunPageRead, RunRead, RunStatus, SampleRead, SampleSummaryRead
 from app.schemas.workflow import (
     ProcessDefinitionRead,
     ReadSchema,
@@ -17,6 +17,7 @@ __all__ = [
     "ProcessExecutionRead",
     "ReadSchema",
     "RunRead",
+    "RunPageRead",
     "RunStatus",
     "SampleRead",
     "SampleSummaryRead",

@@ -33,6 +33,13 @@ class RunRead(ReadSchema):
     retried_task_count: int = Field(default=0, ge=0)
 
 
+class RunPageRead(ReadSchema):
+    items: list[RunRead]
+    total: int = Field(ge=0)
+    limit: int = Field(ge=1)
+    offset: int = Field(ge=0)
+
+
 class SampleSummaryRead(ReadSchema):
     id: int
     sample_id: str
