@@ -6,7 +6,7 @@
   "runServices": ["db", "backend", "frontend"],
   "shutdownAction": "stopCompose",
   "overrideCommand": false,
-  "forwardPorts": [5173, 8000],
+  "forwardPorts": [5173],
   "customizations": {
     "vscode": {
       "settings": {
